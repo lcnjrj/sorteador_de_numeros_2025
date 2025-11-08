@@ -1,0 +1,93 @@
+        // 1. Colocar o DOM caso o <scrip> dentro de index.HTML mudado de lugar, 
+        // se estiver no fim da página logo antes do fim de </body> ok, mas é melhor sempre por.
+        // 
+        document.addEventListener('DOMContentLoaded', () => {
+            // Pegar os dados do imput dos elementos HTML usando seus IDs
+            //
+            const inputQuantidade = document.getElementById('quantidade');
+            const inputDe = document.getElementById('de');
+            const inputAte = document.getElementById('ate');
+            const botaoSortear = document.getElementById('btn-sortear');
+            const botaoReiniciar = document.getElementById('btn-reiniciar');
+            const resultadoDisplay = document.getElementById('resultado');
+
+
+            // 2. O Event Listener: Detecta o clique no botão
+            // A função gerarNumeros() nunca seria chamada, 
+            // e nada aconteceria quando o usuário clicasse no botão.
+            //
+            botaoSortear.addEventListener('click', () => {
+                // Chamamos a função principal quando o botão é clicado
+                sortearNumeros();
+            });
+
+            // 3. A Função Principal: Pega os dados e executa a lógica
+            function sortearNumeros() {
+                // Pegando os valores do HTML
+                // .value pega o texto dentro do campo input
+                // parseInt() converte esse texto em um número inteiro (crucial!)
+                const quantidade = parseInt(inputQuantidade.value);
+                const inicio = parseInt(inputDe.value);
+                const fim = parseInt(inputAte.value);
+
+                // --- 4. Validação da Lógica (Sempre importante!) ---
+                if (isNaN(quantidade) || isNaN(inicio) || isNaN(fim)) {
+                    resultadoDisplay.textContent = "Erro: Por favor, preencha todos os campos com números válidos.";
+                    resultadoDisplay.classList.add('text-red-600');
+                    return;
+                }
+
+                if (inicio >= fim) {
+                    resultadoDisplay.textContent = "Erro: O valor 'DE' deve ser menor que o valor 'ATÉ'.";
+                    resultadoDisplay.classList.add('text-red-600');
+                    return;
+                }
+                
+                // Remove a cor de erro se a validação passar
+                resultadoDisplay.classList.remove('text-red-600');
+
+                // Garante que a quantidade não excede o número de números possíveis
+                const totalPossivel = fim - inicio + 1;
+                if (quantidade > totalPossivel) {
+                     resultadoDisplay.textContent = `Erro: Você só pode gerar no máximo ${totalPossivel} números nesse intervalo.`;
+                     resultadoDisplay.classList.add('text-red-600');
+                     return;
+                }
+
+                // --- 5. Execução do Algoritmo ---
+                const conjuntoGerado = gerarConjuntoAleatorio(quantidade, inicio, fim);
+
+                // --- 6. Injetando o Resultado de Volta no HTML ---
+                resultadoDisplay.textContent = conjuntoGerado.join(', ');
+            }
+
+
+            // 7. Função de Algoritmo para Geração de Números Aleatórios
+            function gerarConjuntoAleatorio(qtd, min, max) {
+                // Cria um array com todos os números possíveis no intervalo
+                let poolDeNumeros = [];
+                for (let i = min; i <= max; i++) {
+                    poolDeNumeros.push(i);
+                }
+
+                let numerosAleatorios = [];
+
+                // Lógica para selecionar a quantidade de números sem repetição
+                for (let i = 0; i < qtd; i++) {
+                    // Escolhe um índice aleatório no pool
+                    const indiceAleatorio = Math.floor(Math.random() * poolDeNumeros.length);
+                    
+                    // Pega o número e o adiciona ao resultado
+                    const numeroSorteado = poolDeNumeros[indiceAleatorio];
+                    numerosAleatorios.push(numeroSorteado);
+
+                    // Remove o número sorteado do pool para evitar repetição (CRUCIAL)
+                    poolDeNumeros.splice(indiceAleatorio, 1);
+                }
+                
+                // Opcional: ordenar o resultado para melhor visualização
+                return numerosAleatorios.sort((a, b) => a - b);
+            }
+
+        }); // Fim do 'DOMContentLoaded'
+ 
